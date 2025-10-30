@@ -70,24 +70,6 @@
                   <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
-              <component id="c5958" class="com.github.lgooddatepicker.components.DatePicker" binding="vonDatePicker">
-                <constraints>
-                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <background color="-1315861"/>
-                  <enabled value="true"/>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="59fd8" class="com.github.lgooddatepicker.components.DatePicker" binding="bisDatePicker">
-                <constraints>
-                  <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <background color="-1315861"/>
-                </properties>
-              </component>
               <component id="f0822" class="javax.swing.JButton" binding="neuerEintragBtn">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -126,6 +108,18 @@
                 <properties>
                   <text value="Bis:"/>
                 </properties>
+              </component>
+              <component id="960c9" class="com.github.lgooddatepicker.components.DatePicker" binding="vonDatePicker">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="72fb8" class="com.github.lgooddatepicker.components.DatePicker" binding="bisDatePicker">
+                <constraints>
+                  <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
               </component>
             </children>
           </grid>

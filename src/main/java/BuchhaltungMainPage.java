@@ -4,11 +4,8 @@ import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Locale;
 import java.time.LocalDate;
-import javax.swing.border.AbstractBorder;
-import java.awt.*;
 
 /**
  * {@summary Hauptseite der Buchhaltung mit Filterleiste, Eintragsliste und Aktionen.}
