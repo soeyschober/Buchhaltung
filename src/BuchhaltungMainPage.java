@@ -2,9 +2,18 @@ import java.awt.*;
 import javax.swing.*;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
+
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Locale;
 import java.time.LocalDate;
+import javax.swing.border.AbstractBorder;
+import java.awt.*;
 
+/**
+ * {@summary Hauptseite der Buchhaltung mit Filterleiste, Eintragsliste und Aktionen.}
+ * Stellt Datum-Filter, Saldo-Auswahl und den Dialog zum Anlegen neuer Einträge bereit.
+ */
 public class BuchhaltungMainPage {
 
     private JPanel rootPnl;
@@ -22,7 +31,12 @@ public class BuchhaltungMainPage {
     public BuchhaltungMainPage() {
         configurePickers();
         wireListeners();
-
+        configureDropBox();
+        // im Konstruktor NACH configureDropBox():
+        saldoComboB.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) updateSaldo();
+        });
+        updateSaldo();
     }
 
     /**
@@ -90,8 +104,36 @@ public class BuchhaltungMainPage {
         });
     }
 
+    /**
+     * {@summary Befüllt die Saldo-Auswahl und setzt die Voreinstellung.}
+     */
+    private void configureDropBox() {
+        saldoComboB.addItem("Alle");
+        saldoComboB.addItem("Einnahmen");
+        saldoComboB.addItem("Ausgaben");
+
+        saldoComboB.setSelectedIndex(0);
+    }
+
+    /**
+     * {@summary Aktualisiert den Saldo-Text anhand der aktuellen Auswahl der Combo-Box.}
+     * Setzt je nach Modus "Einnahmen", "Ausgaben" oder "Alles" in das Saldo-Feld.
+     * !NUR DEMO - LOGIK MIT DB FEHLT NOCH!
+     */
+    private void updateSaldo() {
+        String mode = (String) saldoComboB.getSelectedItem();
+        switch (mode) {
+            case "Einnahmen" -> saldoTextF.setText("Einnahmen");
+            case "Ausgaben"  -> saldoTextF.setText("Ausgaben");
+            default          -> saldoTextF.setText("Alles");
+        }
+    }
+
+    //region Getter & Setter
 
     public JPanel getRootPnl() {
         return rootPnl;
     }
+
+    //endregion
 }
