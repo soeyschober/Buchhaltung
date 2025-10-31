@@ -24,6 +24,7 @@ public class BuchhaltungMainPage {
     private DatePicker vonDatePicker;
     private DatePicker bisDatePicker;
     private JButton neuerEintragBtn;
+    private JTable eintraegeTable;
 
     public BuchhaltungMainPage() {
         configurePickers();
@@ -34,6 +35,47 @@ public class BuchhaltungMainPage {
             if (e.getStateChange() == ItemEvent.SELECTED) updateSaldo();
         });
         updateSaldo();
+        SwingUtilities.invokeLater(this::loadEntries);
+        SwingUtilities.invokeLater(this::tuneTable);
+    }
+
+    public void loadEntries() {
+        try {
+            eintraegeTable.setModel(DbLite.tableModelAll());
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(rootPnl, "Konnte Einträge nicht laden: " + ex.getMessage());
+        }
+    }
+
+    private void tuneTable() {
+        JTable t = eintraegeTable; // use your JTable variable name
+        t.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+
+        // Column indices based on your model: 0=ID, 1=Datum, 2=Kategorie, 3=Beschreibung, 4=Betrag (€)
+        var cm = t.getColumnModel();
+
+        // ID: small, stop hogging pixels
+        cm.getColumn(0).setMinWidth(50);
+        cm.getColumn(0).setMaxWidth(70);
+        cm.getColumn(0).setPreferredWidth(60);
+
+        // Date: compact
+        cm.getColumn(1).setPreferredWidth(200);
+
+        // Category: modest
+        cm.getColumn(2).setPreferredWidth(170);
+
+        // Description: give it space
+        cm.getColumn(3).setPreferredWidth(200);
+
+        // Money: reasonable width + right align
+        cm.getColumn(4).setPreferredWidth(110);
+        javax.swing.table.DefaultTableCellRenderer right = new javax.swing.table.DefaultTableCellRenderer();
+        right.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        cm.getColumn(4).setCellRenderer(right);
+
+        // Optional: nicer row height a tiny bit
+        t.setRowHeight(Math.max(t.getRowHeight(), 22));
     }
 
     /**
@@ -61,6 +103,7 @@ public class BuchhaltungMainPage {
         dlg.setLocationRelativeTo(owner);
 
         dlg.setVisible(true);
+        loadEntries();
     }
 
     /**

@@ -2,11 +2,10 @@ import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
+import java.text.*;
 import java.time.LocalDate;
-import java.util.Locale;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class EintragseingabePage {
     private JPanel rootPnl;
@@ -28,13 +27,16 @@ public class EintragseingabePage {
     private JPanel helperPnl;
     private JFormattedTextField betragTextF;
 
+    private BuchhaltungMainPage mainPage = new BuchhaltungMainPage();
+
+    private final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
     public EintragseingabePage() {
         wireListeners();
         initAmountField();
         configureDropBox();
 
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        datumTextF.setText(LocalDate.now().format(fmt));
+        datumTextF.setText(LocalDate.now().format(DATE_FMT));
     }
 
     /**
@@ -45,6 +47,8 @@ public class EintragseingabePage {
             Window w = SwingUtilities.getWindowAncestor(rootPnl);
             if (w != null) w.dispose();
         });
+
+        bestaetigenBtn.addActionListener(e -> save());
     }
 
     /**
@@ -72,6 +76,42 @@ public class EintragseingabePage {
 
         kategorieComboB.setSelectedIndex(0);
     }
+
+    // >>> ADDED
+    private void save() {
+        try {
+            // Datum parsen
+            LocalDate d = LocalDate.parse(datumTextF.getText().trim(), DATE_FMT);
+
+            // Kategorie
+            String kat = (String) kategorieComboB.getSelectedItem();
+            if (kat == null || kat.isBlank()) kat = "Einnahmen";
+
+            // Beschreibung
+            String desc = beschreibungTextArea.getText().trim();
+
+            // Betrag aus dem JFormattedTextField holen
+            BigDecimal val = (BigDecimal) betragTextF.getValue();
+            if (val == null) {
+                JOptionPane.showMessageDialog(rootPnl, "Bitte Betrag eingeben (z. B. 12,34).");
+                betragTextF.requestFocus();
+                return;
+            }
+            int cents = val.movePointRight(2).setScale(0, java.math.RoundingMode.HALF_UP).intValueExact();
+            if ("Ausgaben".equalsIgnoreCase(kat)) cents = -Math.abs(cents);
+
+            // tatsächliches INSERT
+            DbLite.insert(d, kat, desc, cents);
+            Window w = SwingUtilities.getWindowAncestor(rootPnl);
+            if (w != null) w.dispose();
+            JOptionPane.showMessageDialog(rootPnl, "Gespeichert.");
+            mainPage.loadEntries();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(rootPnl, "Fehler: " + ex.getMessage());
+        }
+    }
+// <<< ADDED
+
 
     //region Getter & Setter
 

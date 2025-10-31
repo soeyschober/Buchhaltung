@@ -2,6 +2,8 @@ import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
+        DbLite.init();
+
         SwingUtilities.invokeLater(() -> {
             try { UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel"); } catch (Exception ignored) {}
             JFrame f = new JFrame("Buchhaltung");
