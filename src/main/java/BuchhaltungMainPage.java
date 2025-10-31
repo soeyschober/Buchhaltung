@@ -26,11 +26,15 @@ public class BuchhaltungMainPage {
     private JButton neuerEintragBtn;
     private JTable eintraegeTable;
 
+    /**
+     * {@summary Initialisiert die Hauptseite, konfiguriert DatePicker, Listener und Sichteinstellungen.}
+     * Lädt anschließend die Einträge und passt die Tabellenansicht an.
+     */
     public BuchhaltungMainPage() {
         configurePickers();
         wireListeners();
         configureDropBox();
-        // im Konstruktor NACH configureDropBox():
+
         saldoComboB.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) updateSaldo();
         });
@@ -39,43 +43,80 @@ public class BuchhaltungMainPage {
         SwingUtilities.invokeLater(this::tuneTable);
     }
 
+    /**
+     * {@summary Lädt die Einträge aus der Datenquelle in die Tabelle.}
+     * Zeigt bei Fehlern einen Dialog an, wendet Tabelleneinstellungen an
+     * und scrollt auf den letzten Eintrag.
+     */
     public void loadEntries() {
         try {
             eintraegeTable.setModel(DbLite.tableModelAll());
         } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(rootPnl, "Konnte Einträge nicht laden: " + ex.getMessage());
         }
+        tuneTable();
+        snapBottom(eintraegeTable);
     }
 
+    /**
+     * {@summary Passt Spaltenbreiten, Ausrichtung und Zeilenhöhe der Tabelle an.}
+     * Richtet außerdem die Betrags-Spalte rechtsbündig aus.
+     */
     private void tuneTable() {
-        JTable t = eintraegeTable; // use your JTable variable name
+        JTable t = eintraegeTable;
         t.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 
-        // Column indices based on your model: 0=ID, 1=Datum, 2=Kategorie, 3=Beschreibung, 4=Betrag (€)
-        var cm = t.getColumnModel();
-
-        // ID: small, stop hogging pixels
-        cm.getColumn(0).setMinWidth(50);
-        cm.getColumn(0).setMaxWidth(70);
-        cm.getColumn(0).setPreferredWidth(60);
-
-        // Date: compact
-        cm.getColumn(1).setPreferredWidth(200);
-
-        // Category: modest
-        cm.getColumn(2).setPreferredWidth(170);
-
-        // Description: give it space
-        cm.getColumn(3).setPreferredWidth(200);
-
-        // Money: reasonable width + right align
-        cm.getColumn(4).setPreferredWidth(110);
         javax.swing.table.DefaultTableCellRenderer right = new javax.swing.table.DefaultTableCellRenderer();
         right.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        cm.getColumn(4).setCellRenderer(right);
 
-        // Optional: nicer row height a tiny bit
+        var cm = t.getColumnModel();
+
+        cm.getColumn(0).setMinWidth(30);
+        cm.getColumn(0).setMaxWidth(50);
+        cm.getColumn(0).setPreferredWidth(40);
+
+        cm.getColumn(1).setMinWidth(50);
+        cm.getColumn(1).setMaxWidth(70);
+        cm.getColumn(1).setPreferredWidth(60);
+
+        cm.getColumn(2).setPreferredWidth(200);
+
+        cm.getColumn(3).setPreferredWidth(170);
+
+        cm.getColumn(4).setPreferredWidth(200);
+
+        cm.getColumn(5).setPreferredWidth(110);
+        cm.getColumn(5).setCellRenderer(right);
+
         t.setRowHeight(Math.max(t.getRowHeight(), 22));
+    }
+
+    /**
+     * {@summary Scrollt die Tabelle auf die letzte Zeile und hält sie dort bei Einfügen neuer Zeilen.}
+     * Fügt außerdem ein ESC-Tastenkürzel hinzu, um jederzeit wieder nach unten zu springen.
+     * @param t Tabelle, die gescrollt werden soll
+     */
+    static void snapBottom(JTable t) {
+        Runnable go = () -> {
+            int m = t.getModel().getRowCount() - 1;
+            if (m < 0) return;
+            int v = (t.getRowSorter() != null) ? t.convertRowIndexToView(m) : m;
+            t.getSelectionModel().setSelectionInterval(v, v);
+            t.scrollRectToVisible(t.getCellRect(v, 0, true));
+        };
+
+        t.getModel().addTableModelListener(e -> {
+            if (e.getType() == javax.swing.event.TableModelEvent.INSERT)
+                javax.swing.SwingUtilities.invokeLater(go);
+        });
+
+        t.getInputMap(javax.swing.JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+                .put(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0), "snapBottom");
+        t.getActionMap().put("snapBottom", new javax.swing.AbstractAction() {
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) { go.run(); }
+        });
+
+        javax.swing.SwingUtilities.invokeLater(go);
     }
 
     /**

@@ -14,6 +14,7 @@ public final class DbLite {
             st.execute("""
                 CREATE TABLE IF NOT EXISTS entry(
                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  belegnr TEXT NOT NULL,
                   datum TEXT NOT NULL,
                   kategorie TEXT NOT NULL,
                   beschreibung TEXT,
@@ -27,14 +28,15 @@ public final class DbLite {
     }
 
     // write
-    public static void insert(LocalDate datum, String kategorie, String beschreibung, int betragCents) {
-        String sql = "INSERT INTO entry(datum,kategorie,beschreibung,betrag_cents) VALUES(?,?,?,?)";
+    public static void insert(String belegnr, LocalDate datum, String kategorie, String beschreibung, int betragCents) {
+        String sql = "INSERT INTO entry(belegnr,datum,kategorie,beschreibung,betrag_cents) VALUES(?,?,?,?)";
         try (Connection c = DriverManager.getConnection(URL);
              PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, datum.toString());
-            ps.setString(2, kategorie);
-            ps.setString(3, beschreibung);
-            ps.setInt(4, betragCents);
+            ps.setString(1, belegnr);
+            ps.setString(2, datum.toString());
+            ps.setString(3, kategorie);
+            ps.setString(4, beschreibung);
+            ps.setInt(5, betragCents);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Insert failed: " + e.getMessage(), e);
@@ -43,11 +45,11 @@ public final class DbLite {
 
     // read -> ready-to-use JTable model
     public static DefaultTableModel tableModelAll() {
-        String[] cols = {"ID","Datum","Kategorie","Beschreibung","Betrag (€)"};
+        String[] cols = {"ID","Beleg","Datum","Kategorie","Beschreibung","Betrag (€)"};
         DefaultTableModel m = new DefaultTableModel(cols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
-        String sql = "SELECT id,datum,kategorie,beschreibung,betrag_cents FROM entry ORDER BY date(datum), id";
+        String sql = "SELECT id,belegnr,datum,kategorie,beschreibung,betrag_cents FROM entry ORDER BY date(datum), id";
         try (Connection c = DriverManager.getConnection(URL);
              PreparedStatement ps = c.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -55,6 +57,7 @@ public final class DbLite {
                 int cents = rs.getInt("betrag_cents");
                 m.addRow(new Object[]{
                         rs.getInt("id"),
+                        rs.getString("belegnr"),
                         rs.getString("datum"),
                         rs.getString("kategorie"),
                         rs.getString("beschreibung"),
@@ -65,13 +68,6 @@ public final class DbLite {
             throw new RuntimeException("Query failed: " + e.getMessage(), e);
         }
         return m;
-    }
-
-    // utility
-    public static int eurosToCents(String euroText) {
-        String t = euroText.trim().replace(",", ".");
-        double v = Double.parseDouble(t);
-        return (int) Math.round(v * 100.0);
     }
 
     public static String centsToEuroString(int cents) {

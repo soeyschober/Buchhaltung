@@ -80,6 +80,9 @@ public class EintragseingabePage {
     // >>> ADDED
     private void save() {
         try {
+            // Belegnummer
+            String belegnr = belegnrTextF.getText();
+
             // Datum parsen
             LocalDate d = LocalDate.parse(datumTextF.getText().trim(), DATE_FMT);
 
@@ -101,7 +104,7 @@ public class EintragseingabePage {
             if ("Ausgaben".equalsIgnoreCase(kat)) cents = -Math.abs(cents);
 
             // tatsächliches INSERT
-            DbLite.insert(d, kat, desc, cents);
+            DbLite.insert(belegnr, d, kat, desc, cents);
             Window w = SwingUtilities.getWindowAncestor(rootPnl);
             if (w != null) w.dispose();
             JOptionPane.showMessageDialog(rootPnl, "Gespeichert.");
