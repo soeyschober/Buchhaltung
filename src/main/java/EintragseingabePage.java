@@ -29,7 +29,7 @@ public class EintragseingabePage {
 
     private BuchhaltungMainPage mainPage = new BuchhaltungMainPage();
 
-    private final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public EintragseingabePage() {
         wireListeners();
@@ -77,14 +77,13 @@ public class EintragseingabePage {
         kategorieComboB.setSelectedIndex(0);
     }
 
-    // >>> ADDED
     private void save() {
         try {
             // Belegnummer
             String belegnr = belegnrTextF.getText();
 
             // Datum parsen
-            LocalDate d = LocalDate.parse(datumTextF.getText().trim(), DATE_FMT);
+            LocalDate d = LocalDate.parse(datumTextF.getText(), DATE_FMT);
 
             // Kategorie
             String kat = (String) kategorieComboB.getSelectedItem();
@@ -113,8 +112,6 @@ public class EintragseingabePage {
             JOptionPane.showMessageDialog(rootPnl, "Fehler: " + ex.getMessage());
         }
     }
-// <<< ADDED
-
 
     //region Getter & Setter
 

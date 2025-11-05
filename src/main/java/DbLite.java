@@ -29,7 +29,7 @@ public final class DbLite {
 
     // write
     public static void insert(String belegnr, LocalDate datum, String kategorie, String beschreibung, int betragCents) {
-        String sql = "INSERT INTO entry(belegnr,datum,kategorie,beschreibung,betrag_cents) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO entry(belegnr,datum,kategorie,beschreibung,betrag_cents) VALUES(?,?,?,?,?)";
         try (Connection c = DriverManager.getConnection(URL);
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, belegnr);
@@ -71,8 +71,19 @@ public final class DbLite {
     }
 
     public static String centsToEuroString(int cents) {
-        boolean neg = cents < 0; int abs = Math.abs(cents);
-        int eur = abs / 100; int ct = abs % 100;
+        boolean neg = cents < 0;
+        int abs = Math.abs(cents);
+        int eur = abs / 100;
+        int ct = abs % 100;
         return (neg ? "-" : "") + eur + "," + String.format("%02d", ct);
+    }
+
+    public static int getBetragCents(int cents){
+        // add missing logic. I'm gonna need this function for further calculations.
+        // like I'm gonna need it to add all those numbers which is why there are also negatives.
+        boolean neg = cents < 0;
+        int abs = Math.abs(cents);
+        int eur = abs / 100; int ct = abs % 100;
+        return (neg ? -1 : 1) * eur;
     }
 }
